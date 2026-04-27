@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transportunity Costs — Public Transit Equity</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+    <!-- ================================================================
+         HEADER
+    ================================================================ -->
+    <header class="site-header">
+        <div class="header-inner">
+            <h1>Transportunity Costs</h1>
+            <p class="subtitle">Mapping Public Transportation Disparities in New York City &amp; Washington, D.C.</p>
+            <div class="team-info">
+                <span class="team-label">Team:</span>
+                Bilal Suleman &bull; Mihir Celly &bull; Raghava Kalidindi &bull; Aadhitya Ashok &bull; Abhijay Rao Mallya
+                <span class="group-tag">CMSC 471 &mdash; Canvas Group: Final Project &ndash; 14</span>
+            </div>
+        </div>
+    </header>
+
+    <main>
+
+        <!-- ================================================================
+             INTRO / ABOUT
+        ================================================================ -->
+        <section class="intro-section">
+            <div class="intro-inner">
+                <h2>About This Project</h2>
+                <p>
+                    Public transportation is not distributed equitably. This project compares demographic
+                    vulnerability&mdash;including racial minority populations, poverty rates, and senior citizen
+                    concentrations&mdash;against transit network reach in <strong>New York City</strong> and
+                    <strong>Washington, D.C.</strong> The choropleth maps show where high-need communities live,
+                    overlaid with the actual transit network. The bar charts measure the disparity in average
+                    distance to the nearest transit stop between minority-majority and non-minority neighborhoods.
+                    Together, these visualizations reveal where future transit investment would have the greatest
+                    equity impact.
+                </p>
+                <div class="legend-bar global-legend">
+                    <span class="legend-label">Vulnerability Index:</span>
+                    <div class="gradient-wrap">
+                        <span class="grad-low">Low</span>
+                        <div class="grad-bar" id="global-grad-bar"></div>
+                        <span class="grad-high">High</span>
+                    </div>
+                    <span class="legend-spacer"></span>
+                    <span class="legend-dot subway"></span><span>Subway / Metro</span>
+                    <span class="legend-dot bus"></span><span>Bus / Rail</span>
+                </div>
+                <p class="index-note">
+                    Vulnerability Index = 0.40 &times; Minority % + 0.35 &times; Poverty % + 0.25 &times; Senior (65+) %
+                </p>
+            </div>
+        </section>
+
+        <!-- ================================================================
+             NEW YORK CITY
+        ================================================================ -->
+        <section class="city-section" id="nyc-section">
+            <div class="section-header">
+                <h2>New York City</h2>
+                <p>MTA Subway &amp; Bus network overlaid with neighborhood-level demographic vulnerability (NTA boundaries)</p>
+            </div>
+
+            <div class="viz-row">
+                <!-- Map -->
+                <div class="panel map-panel" id="nyc-map-panel">
+                    <div class="panel-header">
+                        <h3>Transit Network &amp; Demographic Heatmap</h3>
+                        <div class="map-legend" id="nyc-map-legend"></div>
+                    </div>
+                    <div class="svg-wrap">
+                        <svg id="nyc-map"></svg>
+                        <div class="loading-msg" id="nyc-map-loading">Loading NYC map data&hellip;</div>
+                    </div>
+                </div>
+
+                <!-- Chart -->
+                <div class="panel chart-panel" id="nyc-chart-panel">
+                    <div class="panel-header">
+                        <h3>Distance to Nearest Transit Stop</h3>
+                        <p class="chart-desc">
+                            Average distance (km) from neighborhood centroid to the nearest transit station,
+                            split by minority-majority vs. non-minority neighborhoods.
+                        </p>
+                    </div>
+                    <div class="svg-wrap">
+                        <svg id="nyc-chart"></svg>
+                        <div class="loading-msg" id="nyc-chart-loading">Loading NYC chart&hellip;</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================
+             WASHINGTON D.C.
+        ================================================================ -->
+        <section class="city-section" id="dc-section">
+            <div class="section-header">
+                <h2>Washington, D.C.</h2>
+                <p>WMATA Metro network overlaid with census-tract-level demographic vulnerability</p>
+            </div>
+
+            <div class="viz-row">
+                <!-- Map -->
+                <div class="panel map-panel" id="dc-map-panel">
+                    <div class="panel-header">
+                        <h3>Transit Network &amp; Demographic Heatmap</h3>
+                        <div class="map-legend" id="dc-map-legend"></div>
+                    </div>
+                    <div class="svg-wrap">
+                        <svg id="dc-map"></svg>
+                        <div class="loading-msg" id="dc-map-loading">Loading DC map data&hellip;</div>
+                    </div>
+                </div>
+
+                <!-- Chart -->
+                <div class="panel chart-panel" id="dc-chart-panel">
+                    <div class="panel-header">
+                        <h3>Distance to Nearest Transit Stop</h3>
+                        <p class="chart-desc">
+                            Average distance (km) from census tract centroid to the nearest Metro station,
+                            split by minority-majority vs. non-minority tracts.
+                        </p>
+                    </div>
+                    <div class="svg-wrap">
+                        <svg id="dc-chart"></svg>
+                        <div class="loading-msg" id="dc-chart-loading">Loading DC chart&hellip;</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================
+             CROSS-CITY COMPARISON
+        ================================================================ -->
+        <section class="city-section" id="comparison-section">
+            <div class="section-header">
+                <h2>City Comparison</h2>
+                <p>Side-by-side transit equity gap: NYC vs. D.C.</p>
+            </div>
+            <div class="viz-row single">
+                <div class="panel chart-panel wide" id="comparison-panel">
+                    <div class="panel-header">
+                        <h3>Transit Gap &mdash; Minority vs. Non-Minority Communities</h3>
+                        <p class="chart-desc">
+                            Grouped bars compare average distance to nearest transit stop across both cities and
+                            both demographic groups. A larger gap between red and green bars indicates greater
+                            transit inequity in that city.
+                        </p>
+                    </div>
+                    <div class="svg-wrap">
+                        <svg id="comparison-chart"></svg>
+                        <div class="loading-msg" id="comparison-loading">Loading comparison chart&hellip;</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Global tooltip (positioned by JS) -->
+    <div id="tooltip" class="tooltip" aria-hidden="true"></div>
+
+    <footer>
+        <p>
+            Data sources: MTA Open Data (Bus Routes, Subway Stations) &bull; DC OpenData (Metro Stations) &bull;
+            NYC OpenData (NTA Demographics) &bull; U.S. Census ACS 5-Year Estimates (DC Census Tracts)
+        </p>
+        <p>CMSC 471 Final Project &bull; University of Maryland &bull; 2025</p>
+    </footer>
+
+    <!-- D3 v7 from CDN -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <!-- Main visualization logic -->
+    <script src="js/script.js"></script>
+
+</body>
+</html>

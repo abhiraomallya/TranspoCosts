@@ -1,0 +1,424 @@
+/* =============================================================================
+   Transportunity Costs — Stylesheet
+   CMSC 471 Final Project, Group 14
+============================================================================= */
+
+/* --- Reset & Custom Properties --- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+    --bg:          #0c0f1a;
+    --surface:     #141826;
+    --surface2:    #1d2236;
+    --border:      #272d45;
+    --accent-nyc:  #4f9cf9;   /* blue  — NYC */
+    --accent-dc:   #f97316;   /* orange — DC  */
+    --text:        #e4e8f4;
+    --text-muted:  #7c85a2;
+    --danger:      #e74c3c;   /* minority bars */
+    --safe:        #2ecc71;   /* non-minority bars */
+    --radius:      10px;
+    --font:        'Segoe UI', system-ui, -apple-system, sans-serif;
+    --shadow:      0 4px 24px rgba(0, 0, 0, 0.45);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 15px;
+    line-height: 1.65;
+}
+
+
+/* =============================================================================
+   HEADER
+============================================================================= */
+.site-header {
+    background: linear-gradient(135deg, #0a1020 0%, #162040 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 2.5rem 2rem 2rem;
+}
+
+.header-inner { max-width: 1340px; margin: 0 auto; }
+
+.site-header h1 {
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: #fff;
+    margin-bottom: 0.3rem;
+}
+
+.subtitle {
+    font-size: 1.05rem;
+    color: var(--accent-nyc);
+    margin-bottom: 1rem;
+    font-weight: 400;
+}
+
+.team-info {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem 0.8rem;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+}
+
+.team-label { font-weight: 600; color: var(--text); }
+
+.group-tag {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 2px 9px;
+    font-size: 0.78rem;
+    color: var(--accent-nyc);
+    white-space: nowrap;
+}
+
+
+/* =============================================================================
+   MAIN LAYOUT
+============================================================================= */
+main {
+    max-width: 1340px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+}
+
+
+/* =============================================================================
+   INTRO SECTION
+============================================================================= */
+.intro-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.8rem 2rem;
+    margin-bottom: 2.5rem;
+}
+
+.intro-inner h2 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--accent-nyc);
+    margin-bottom: 0.7rem;
+}
+
+.intro-inner > p {
+    color: var(--text-muted);
+    max-width: 860px;
+    margin-bottom: 1.2rem;
+    font-size: 0.93rem;
+}
+
+/* Global legend bar */
+.legend-bar.global-legend {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 0.6rem;
+}
+
+.legend-label { font-weight: 600; color: var(--text); }
+.legend-spacer { flex: 1; min-width: 1.5rem; }
+
+.gradient-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.75rem;
+}
+
+.grad-bar {
+    width: 120px;
+    height: 11px;
+    border-radius: 3px;
+    background: linear-gradient(to right, #ffffb2, #fd8d3c, #bd0026);
+}
+
+.legend-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 3px;
+}
+.legend-dot.subway { background: #ffe066; }
+.legend-dot.bus    { background: #66d9e8; }
+
+.index-note {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    font-style: italic;
+    margin-top: 0;
+}
+
+
+/* =============================================================================
+   CITY SECTIONS
+============================================================================= */
+.city-section { margin-bottom: 3rem; }
+
+.section-header { margin-bottom: 1.4rem; }
+
+.section-header h2 {
+    font-size: 1.65rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 0.2rem;
+}
+
+.section-header p {
+    font-size: 0.88rem;
+    color: var(--text-muted);
+}
+
+
+/* =============================================================================
+   VIZ ROW (2-column grid)
+============================================================================= */
+.viz-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.4rem;
+    align-items: start;
+}
+
+.viz-row.single { grid-template-columns: 1fr; }
+
+
+/* =============================================================================
+   PANELS (map & chart containers)
+============================================================================= */
+.panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.2rem 1.3rem;
+    box-shadow: var(--shadow);
+    position: relative;
+}
+
+.panel-header { margin-bottom: 0.8rem; }
+
+.panel-header h3 {
+    font-size: 0.97rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 0.25rem;
+}
+
+.chart-desc {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+}
+
+/* Map-panel legend row */
+.map-legend {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem 0.8rem;
+    font-size: 0.74rem;
+    color: var(--text-muted);
+    margin-top: 0.4rem;
+}
+
+/* svg-wrap gives the SVG a fixed height inside the panel */
+.svg-wrap {
+    position: relative;
+    width: 100%;
+}
+
+/* Map SVGs */
+#nyc-map, #dc-map {
+    display: block;
+    width: 100%;
+    height: 440px;
+}
+
+/* Chart SVGs */
+#nyc-chart, #dc-chart, #comparison-chart {
+    display: block;
+    width: 100%;
+    height: 320px;
+}
+
+.wide #comparison-chart { height: 290px; }
+
+
+/* =============================================================================
+   LOADING MESSAGE
+============================================================================= */
+.loading-msg {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+
+/* =============================================================================
+   TOOLTIP
+============================================================================= */
+.tooltip {
+    position: fixed;
+    background: rgba(8, 10, 20, 0.96);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 0.8rem;
+    color: var(--text);
+    pointer-events: none;
+    z-index: 9999;
+    max-width: 230px;
+    box-shadow: 0 6px 28px rgba(0, 0, 0, 0.6);
+    line-height: 1.75;
+}
+
+.tooltip strong {
+    display: block;
+    color: var(--accent-nyc);
+    font-size: 0.85rem;
+    margin-bottom: 5px;
+}
+
+.tt-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.tt-label { color: var(--text-muted); }
+.tt-val   { font-weight: 600; color: var(--text); }
+
+
+/* =============================================================================
+   MAP ELEMENTS (SVG classes applied by D3)
+============================================================================= */
+.neighborhood {
+    stroke: rgba(39, 45, 69, 0.7);
+    stroke-width: 0.4px;
+    cursor: pointer;
+    transition: opacity 0.12s, stroke-width 0.12s;
+}
+.neighborhood:hover {
+    opacity: 0.75;
+    stroke: #fff;
+    stroke-width: 1.2px;
+}
+
+.transit-route {
+    fill: none;
+    stroke-width: 1.4px;
+    opacity: 0.72;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.transit-station { cursor: pointer; }
+.transit-station:hover {
+    stroke: #fff !important;
+    stroke-width: 2px;
+}
+
+
+/* =============================================================================
+   CHART / AXIS ELEMENTS
+============================================================================= */
+.axis text {
+    fill: var(--text-muted);
+    font-size: 0.73rem;
+    font-family: var(--font);
+}
+.axis line, .axis path { stroke: var(--border); }
+
+.grid line {
+    stroke: var(--border);
+    stroke-dasharray: 3 4;
+    opacity: 0.55;
+}
+.grid path { stroke: none; }
+
+.bar {
+    cursor: pointer;
+    transition: opacity 0.15s;
+}
+.bar:hover { opacity: 0.78; }
+
+.axis-label {
+    fill: var(--text-muted);
+    font-size: 0.72rem;
+    font-family: var(--font);
+}
+
+.bar-value-label {
+    fill: var(--text);
+    font-size: 0.72rem;
+    font-weight: 600;
+    font-family: var(--font);
+    pointer-events: none;
+}
+
+.chart-annotation {
+    fill: var(--text-muted);
+    font-size: 0.7rem;
+    font-family: var(--font);
+}
+
+.error-bar-line { stroke: rgba(255,255,255,0.7); stroke-width: 1.8px; }
+.error-bar-cap  { stroke: rgba(255,255,255,0.7); stroke-width: 1.8px; }
+
+
+/* =============================================================================
+   COMPARISON LEGEND
+============================================================================= */
+.comp-legend rect { rx: 3; }
+.comp-legend text {
+    fill: var(--text-muted);
+    font-size: 0.75rem;
+    font-family: var(--font);
+}
+
+
+/* =============================================================================
+   FOOTER
+============================================================================= */
+footer {
+    text-align: center;
+    padding: 2rem 1rem;
+    color: var(--text-muted);
+    font-size: 0.78rem;
+    border-top: 1px solid var(--border);
+    line-height: 2;
+}
+
+
+/* =============================================================================
+   RESPONSIVE
+============================================================================= */
+@media (max-width: 960px) {
+    .viz-row { grid-template-columns: 1fr; }
+    #nyc-map, #dc-map { height: 340px; }
+    #nyc-chart, #dc-chart { height: 280px; }
+}
+
+@media (max-width: 560px) {
+    main { padding: 1rem; }
+    .intro-section { padding: 1.2rem; }
+    #nyc-map, #dc-map { height: 280px; }
+    .site-header { padding: 1.5rem 1rem; }
+}

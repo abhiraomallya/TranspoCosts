@@ -51,8 +51,8 @@
             loadingCh:  "nyc-chart-loading",
             stationFile:"data/MTA_Subway_Stations_20260427.geojson",
             tractsFile: "data/nyc_census_tracts.geojson",   // optional
-            center:     [-73.94, 40.70],
-            scale:      55000,
+            center:     [-73.98, 40.67],
+            scale:      46000,
             label:      "New York City",
             accentColor:"#4f9cf9",
         },
@@ -64,8 +64,8 @@
             loadingCh:  "dc-chart-loading",
             acsFile:    "data/ACS_5-Year_Demographic_Characteristics_of_DC_Census_Tracts.geojson",
             stationFile:"data/Metro_Stations_Regional.geojson",
-            center:     [-77.03, 38.905],
-            scale:      130000,
+            center:     [-77.01, 38.90],
+            scale:      90000,
             label:      "Washington, D.C.",
             accentColor:"#f97316",
         },
@@ -106,8 +106,9 @@
              + VW.senior   * (+d.senior_pct   || 0);
     }
 
-    // Sequential yellow→orange→red scale for choropleth
-    const vulnColor = d3.scaleSequential(d3.interpolateYlOrRd).domain([0, 1]);
+    // Sequential yellow→orange→red choropleth scale.
+    // Domain is computed dynamically from actual data values in buildMap()
+    // so DC's majority-minority tracts spread across the full colour range.
 
     // =========================================================================
     // 3. UTILITIES
@@ -308,12 +309,15 @@
 
         const svgEl = document.getElementById(cfg.mapId);
         const W = svgEl.parentElement.clientWidth - 2;
-        const H = 440;
+        const H = svgEl.clientHeight || 440;
 
         const svg = d3.select(`#${cfg.mapId}`)
             .attr("viewBox", `0 0 ${W} ${H}`)
             .attr("preserveAspectRatio", "xMidYMid meet");
         svg.selectAll("*").remove();
+
+        // Dark ocean/background so neighbourhood polygons contrast clearly
+        svg.append("rect").attr("width", W).attr("height", H).attr("fill", "#090d12");
 
         // Mercator — center[] is [lng, lat]; scale is pixels-per-radian (higher = more zoom).
         const proj = d3.geoMercator()
@@ -326,6 +330,23 @@
         const routes   = geoFeatures.filter(f => f.properties.type === "route");
         const stations = geoFeatures.filter(f =>
             f.properties.type === "station" && f.geometry?.type === "Point");
+
+        // Inferno colormap offset so the minimum is a visible dark-maroon (not black),
+        // and the maximum is a bright yellow. Works well on dark panel backgrounds.
+        const vulnInterp = t => d3.interpolateInferno(0.15 + t * 0.85);
+
+        // Build a per-map colour scale whose domain spans the actual data range.
+        let vulnColor;
+        if (hoods.length > 0) {
+            const vals = hoods
+                .filter(h => h.properties.demog)
+                .map(h => vulnIdx(h.properties.demog));
+            const [lo, hi] = d3.extent(vals);
+            vulnColor = d3.scaleSequential(vulnInterp)
+                .domain([lo ?? 0, (hi ?? 1) * 1.05]);
+        } else {
+            vulnColor = d3.scaleSequential(vulnInterp).domain([0, 1]);
+        }
 
         // Layer 1: choropleth (only if neighborhood polygons exist)
         if (hoods.length > 0) {
@@ -356,7 +377,8 @@
                         TSTROKE[d.properties.transit_type] || TSTROKE.default);
         }
 
-        // Layer 3: station dots
+        // Layer 3: station dots — DC dots larger to show WMATA line colors clearly
+        const stationR = cfg.mapId === "dc-map" ? 5 : (hoods.length > 0 ? 3.5 : 2.5);
         svg.append("g").attr("class", "stations")
             .selectAll("circle")
             .data(stations)
@@ -364,17 +386,60 @@
                 .attr("class", "transit-station")
                 .attr("cx", d => proj(d.geometry.coordinates)[0])
                 .attr("cy", d => proj(d.geometry.coordinates)[1])
-                .attr("r",  hoods.length > 0 ? 3 : 2.2)
+                .attr("r",  stationR)
                 .attr("fill", d =>
                     d.properties.line_color ||
                     TSTROKE[d.properties.transit_type] || TSTROKE.default)
                 .attr("stroke", "#0c0f1a")
-                .attr("stroke-width", 0.6)
+                .attr("stroke-width", 0.8)
                 .on("mousemove", (ev, d) => showTip(ev,
                     `<strong>${d.properties.name || "Station"}</strong>
                      <div class="tt-row"><span class="tt-label">Type</span>
                           <span class="tt-val">${d.properties.transit_type}</span></div>`))
                 .on("mouseleave", hideTip);
+
+        // Layer 4: geographic labels — borough names (NYC) or ward names (DC)
+        const LABEL_STYLE = {
+            "font-family": "'Space Grotesk', 'Inter', system-ui, sans-serif",
+            "font-weight": "700",
+            "font-size":   cfg.mapId === "dc-map" ? "10px" : "11px",
+            "letter-spacing": "0.04em",
+            "text-anchor": "middle",
+            "fill": "rgba(255,255,255,0.92)",
+            "paint-order": "stroke",
+            "stroke": "rgba(0,0,0,0.75)",
+            "stroke-width": "3px",
+            "stroke-linejoin": "round",
+            "pointer-events": "none",
+        };
+        const labelsG = svg.append("g").attr("class", "geo-labels");
+
+        const GEO_LABELS = cfg.mapId === "nyc-map"
+            ? [
+                { name: "Manhattan",    lat: 40.7831, lng: -73.9712 },
+                { name: "Brooklyn",     lat: 40.6501, lng: -73.9496 },
+                { name: "Bronx",        lat: 40.8448, lng: -73.8648 },
+                { name: "Queens",       lat: 40.7282, lng: -73.7949 },
+                { name: "Staten Is.",   lat: 40.5795, lng: -74.1502 },
+              ]
+            : [
+                { name: "Ward 1",  lat: 38.9219, lng: -77.0274 },
+                { name: "Ward 2",  lat: 38.9001, lng: -77.0468 },
+                { name: "Ward 3",  lat: 38.9360, lng: -77.0720 },
+                { name: "Ward 4",  lat: 38.9510, lng: -77.0225 },
+                { name: "Ward 5",  lat: 38.9180, lng: -76.9930 },
+                { name: "Ward 6",  lat: 38.8886, lng: -77.0000 },
+                { name: "Ward 7",  lat: 38.8893, lng: -76.9540 },
+                { name: "Ward 8",  lat: 38.8530, lng: -76.9835 },
+              ];
+
+        GEO_LABELS.forEach(lbl => {
+            const [px, py] = proj([lbl.lng, lbl.lat]);
+            if (px < 4 || px > W - 4 || py < 4 || py > H - 4) return;
+            const t = labelsG.append("text").attr("x", px).attr("y", py);
+            Object.entries(LABEL_STYLE).forEach(([k, v]) => t.style(k, v));
+            t.text(lbl.name);
+        });
 
         buildMapLegend(cfg, hoods.length > 0);
 
@@ -411,7 +476,7 @@
             [0, .25, .5, .75, 1].forEach(t => {
                 const stop = document.createElementNS(ns, "stop");
                 stop.setAttribute("offset", `${t * 100}%`);
-                stop.setAttribute("stop-color", vulnColor(t));
+                stop.setAttribute("stop-color", d3.interpolateInferno(0.15 + t * 0.85));
                 grad.appendChild(stop);
             });
             defs.appendChild(grad);
@@ -484,7 +549,7 @@
 
         const svgEl = document.getElementById(cfg.chartId);
         const totalW = svgEl.parentElement.clientWidth - 2;
-        const totalH = 320;
+        const totalH = svgEl.clientHeight || 440;
         const M = { top:32, right:20, bottom:88, left:62 };
         const cW = totalW - M.left - M.right;
         const cH = totalH - M.top  - M.bottom;
@@ -570,7 +635,7 @@
     function drawBarChart({ svgId, groups, annotation, yLabel }) {
         const svgEl  = document.getElementById(svgId);
         const totalW = svgEl.parentElement.clientWidth - 2;
-        const totalH = 320;
+        const totalH = svgEl.clientHeight || 440;
         const M = { top:32, right:24, bottom:68, left:62 };
         const cW = totalW - M.left - M.right;
         const cH = totalH - M.top  - M.bottom;
@@ -694,7 +759,7 @@
         // Render using a wider SVG than the per-city charts
         const svgEl  = document.getElementById("comparison-chart");
         const totalW = svgEl.parentElement.clientWidth - 2;
-        const totalH = 290;
+        const totalH = svgEl.clientHeight || 340;
         const M = { top:30, right:24, bottom:82, left:62 };
         const cW = totalW - M.left - M.right;
         const cH = totalH - M.top  - M.bottom;
@@ -782,6 +847,22 @@
                 .attr("x", cW / 2).attr("y", -14).attr("text-anchor","middle")
                 .text("NYC: borough-level data (run prepare_nyc.py for tract-level) · DC: census-tract-level data");
         }
+
+        // Populate stat cards with computed equity gap percentages
+        const [nycMin, nycNon, dcMin, dcNon] = groups;
+        function pctGap(minority, nonMinority) {
+            return nonMinority.mean > 0.001
+                ? Math.round((minority.mean - nonMinority.mean) / nonMinority.mean * 100)
+                : 0;
+        }
+        const nycGap = pctGap(nycMin, nycNon);
+        const dcGap  = pctGap(dcMin,  dcNon);
+        const aggGap = Math.round((nycGap + dcGap) / 2);
+        const fmtGap = v => `${v > 0 ? "+" : ""}${v}%`;
+        const getEl  = id => document.getElementById(id);
+        if (getEl("stat-nyc-gap")) getEl("stat-nyc-gap").textContent = fmtGap(nycGap);
+        if (getEl("stat-dc-gap"))  getEl("stat-dc-gap").textContent  = fmtGap(dcGap);
+        if (getEl("stat-agg-gap")) getEl("stat-agg-gap").textContent = `~${aggGap}%`;
     }
 
     // =========================================================================

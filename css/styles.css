@@ -1,25 +1,32 @@
 /* =============================================================================
    Transportunity Costs — Stylesheet
    CMSC 471 Final Project, Group 14
+   Design system: Google Stitch — Transportunity Analytics
 ============================================================================= */
 
 /* --- Reset & Custom Properties --- */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-    --bg:          #0c0f1a;
-    --surface:     #141826;
-    --surface2:    #1d2236;
-    --border:      #272d45;
-    --accent-nyc:  #4f9cf9;   /* blue  — NYC */
-    --accent-dc:   #f97316;   /* orange — DC  */
-    --text:        #e4e8f4;
-    --text-muted:  #7c85a2;
-    --danger:      #e74c3c;   /* minority bars */
-    --safe:        #2ecc71;   /* non-minority bars */
-    --radius:      10px;
-    --font:        'Segoe UI', system-ui, -apple-system, sans-serif;
-    --shadow:      0 4px 24px rgba(0, 0, 0, 0.45);
+    --bg:             #131314;
+    --surface:        #1c1b1c;
+    --surface2:       #201f20;
+    --surface3:       #2a2a2a;
+    --border:         rgba(255, 255, 255, 0.10);
+    --border-hover:   rgba(255, 255, 255, 0.28);
+    --glass-bg:       rgba(255, 255, 255, 0.05);
+    --accent-nyc:     #4f9cf9;   /* blue   — NYC */
+    --accent-dc:      #fa5c1c;   /* orange — DC  */
+    --teal:           #59dad1;
+    --text:           #e5e2e2;
+    --text-muted:     #c6c6cb;
+    --danger:         #e74c3c;   /* minority bars */
+    --safe:           #2ecc71;   /* non-minority bars */
+    --radius:         10px;
+    --font:           'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    --font-heading:   'Space Grotesk', system-ui, -apple-system, sans-serif;
+    --shadow:         0 4px 24px rgba(0, 0, 0, 0.55);
+    --nav-h:          68px;
 }
 
 html { scroll-behavior: smooth; }
@@ -34,27 +41,90 @@ body {
 
 
 /* =============================================================================
-   HEADER
+   NAV
+============================================================================= */
+.site-nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    height: var(--nav-h);
+    background: rgba(13, 13, 14, 0.85);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--border);
+}
+
+.nav-inner {
+    max-width: 1340px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.nav-logo {
+    font-family: var(--font-heading);
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: #fff;
+    white-space: nowrap;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+.nav-links a {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.6);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+.nav-links a:hover { color: #fff; }
+
+.nav-cta {
+    background: var(--accent-dc);
+    color: #fff !important;
+    padding: 0.45rem 1.1rem;
+    border-radius: 6px;
+    font-weight: 600 !important;
+    transition: opacity 0.2s !important;
+}
+.nav-cta:hover { opacity: 0.86; }
+
+@media (max-width: 680px) { .nav-links { display: none; } }
+
+
+/* =============================================================================
+   HEADER / HERO
 ============================================================================= */
 .site-header {
-    background: linear-gradient(135deg, #0a1020 0%, #162040 100%);
+    background: linear-gradient(135deg, #0a0e1a 0%, #141e38 55%, #0d1117 100%);
     border-bottom: 1px solid var(--border);
-    padding: 2.5rem 2rem 2rem;
+    padding: 4.5rem 2rem 3rem;
+    margin-top: var(--nav-h);
 }
 
 .header-inner { max-width: 1340px; margin: 0 auto; }
 
 .site-header h1 {
-    font-size: clamp(1.8rem, 4vw, 2.8rem);
-    font-weight: 800;
+    font-family: var(--font-heading);
+    font-size: clamp(2rem, 5vw, 3.4rem);
+    font-weight: 700;
     letter-spacing: -0.03em;
     color: #fff;
-    margin-bottom: 0.3rem;
+    margin-bottom: 0.4rem;
 }
 
 .subtitle {
-    font-size: 1.05rem;
-    color: var(--accent-nyc);
+    font-size: 1.1rem;
+    color: var(--accent-dc);
     margin-bottom: 1rem;
     font-weight: 400;
 }
@@ -71,7 +141,7 @@ body {
 .team-label { font-weight: 600; color: var(--text); }
 
 .group-tag {
-    background: var(--surface2);
+    background: var(--glass-bg);
     border: 1px solid var(--border);
     border-radius: 4px;
     padding: 2px 9px;
@@ -95,14 +165,19 @@ main {
    INTRO SECTION
 ============================================================================= */
 .intro-section {
-    background: var(--surface);
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     border: 1px solid var(--border);
     border-radius: var(--radius);
     padding: 1.8rem 2rem;
     margin-bottom: 2.5rem;
+    transition: border-color 0.25s;
 }
+.intro-section:hover { border-color: var(--border-hover); }
 
 .intro-inner h2 {
+    font-family: var(--font-heading);
     font-size: 1.15rem;
     font-weight: 700;
     color: var(--accent-nyc);
@@ -141,7 +216,7 @@ main {
     width: 120px;
     height: 11px;
     border-radius: 3px;
-    background: linear-gradient(to right, #ffffb2, #fd8d3c, #bd0026);
+    background: linear-gradient(to right, #280b53, #8f2363, #e65100, #fde725);
 }
 
 .legend-dot {
@@ -170,6 +245,7 @@ main {
 .section-header { margin-bottom: 1.4rem; }
 
 .section-header h2 {
+    font-family: var(--font-heading);
     font-size: 1.65rem;
     font-weight: 700;
     color: #fff;
@@ -181,15 +257,34 @@ main {
     color: var(--text-muted);
 }
 
+/* Accent borders per city */
+#nyc-section .section-header {
+    border-left: 4px solid var(--accent-nyc);
+    padding-left: 1rem;
+}
+
+#dc-section .section-header {
+    border-right: 4px solid var(--accent-dc);
+    padding-right: 1rem;
+    text-align: right;
+}
+
+#comparison-section .section-header { text-align: center; }
+
 
 /* =============================================================================
    VIZ ROW (2-column grid)
 ============================================================================= */
 .viz-row {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 3fr 2fr;
     gap: 1.4rem;
-    align-items: start;
+    align-items: stretch;
+}
+
+/* DC section: map on right, chart on left — flip column order */
+#dc-section .viz-row {
+    grid-template-columns: 2fr 3fr;
 }
 
 .viz-row.single { grid-template-columns: 1fr; }
@@ -199,17 +294,22 @@ main {
    PANELS (map & chart containers)
 ============================================================================= */
 .panel {
-    background: var(--surface);
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     border: 1px solid var(--border);
     border-radius: var(--radius);
     padding: 1.2rem 1.3rem;
     box-shadow: var(--shadow);
     position: relative;
+    transition: border-color 0.25s;
 }
+.panel:hover { border-color: var(--border-hover); }
 
 .panel-header { margin-bottom: 0.8rem; }
 
 .panel-header h3 {
+    font-family: var(--font-heading);
     font-size: 0.97rem;
     font-weight: 600;
     color: var(--text);
@@ -246,14 +346,61 @@ main {
     height: 440px;
 }
 
-/* Chart SVGs */
-#nyc-chart, #dc-chart, #comparison-chart {
+/* Chart SVGs — same height as maps so paired panels stay level */
+#nyc-chart, #dc-chart {
     display: block;
     width: 100%;
-    height: 320px;
+    height: 440px;
 }
 
-.wide #comparison-chart { height: 290px; }
+#comparison-chart {
+    display: block;
+    width: 100%;
+    height: 340px;
+}
+
+
+/* =============================================================================
+   CITY STATS ROW (comparison section — values populated by JS)
+============================================================================= */
+.city-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-top: 1.4rem;
+    padding-top: 1.2rem;
+    border-top: 1px solid var(--border);
+}
+
+.city-stat {
+    text-align: center;
+    padding: 1rem 0.8rem;
+    background: var(--glass-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    transition: border-color 0.25s;
+}
+.city-stat:hover { border-color: var(--border-hover); }
+
+.city-stat .stat-value {
+    font-family: var(--font-heading);
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 0.4rem;
+}
+
+.city-stat .stat-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+}
+
+.city-stat.nyc .stat-value { color: var(--accent-nyc); }
+.city-stat.dc  .stat-value { color: var(--accent-dc);  }
+.city-stat.agg .stat-value { color: var(--text); }
 
 
 /* =============================================================================
@@ -310,8 +457,8 @@ main {
    MAP ELEMENTS (SVG classes applied by D3)
 ============================================================================= */
 .neighborhood {
-    stroke: rgba(39, 45, 69, 0.7);
-    stroke-width: 0.4px;
+    stroke: rgba(255, 255, 255, 0.18);
+    stroke-width: 0.5px;
     cursor: pointer;
     transition: opacity 0.12s, stroke-width 0.12s;
 }
@@ -344,12 +491,12 @@ main {
     font-size: 0.73rem;
     font-family: var(--font);
 }
-.axis line, .axis path { stroke: var(--border); }
+.axis line, .axis path { stroke: rgba(255,255,255,0.12); }
 
 .grid line {
-    stroke: var(--border);
+    stroke: rgba(255,255,255,0.07);
     stroke-dasharray: 3 4;
-    opacity: 0.55;
+    opacity: 0.8;
 }
 .grid path { stroke: none; }
 
@@ -411,14 +558,23 @@ footer {
    RESPONSIVE
 ============================================================================= */
 @media (max-width: 960px) {
-    .viz-row { grid-template-columns: 1fr; }
+    .viz-row,
+    #dc-section .viz-row { grid-template-columns: 1fr; }
     #nyc-map, #dc-map { height: 340px; }
-    #nyc-chart, #dc-chart { height: 280px; }
+    #nyc-chart, #dc-chart { height: 340px; }
+    .city-stats { grid-template-columns: 1fr; }
+    #dc-section .section-header {
+        text-align: left;
+        border-right: none;
+        border-left: 4px solid var(--accent-dc);
+        padding-right: 0;
+        padding-left: 1rem;
+    }
 }
 
 @media (max-width: 560px) {
     main { padding: 1rem; }
     .intro-section { padding: 1.2rem; }
     #nyc-map, #dc-map { height: 280px; }
-    .site-header { padding: 1.5rem 1rem; }
+    .site-header { padding: 3rem 1rem 2rem; }
 }

@@ -4,12 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Transportunity Costs — Public Transit Equity</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
 
     <!-- ================================================================
-         HEADER
+         NAVIGATION
+    ================================================================ -->
+    <nav class="site-nav">
+        <div class="nav-inner">
+            <span class="nav-logo">Transportunity Costs</span>
+            <div class="nav-links">
+                <a href="#nyc-section">NYC Hub</a>
+                <a href="#dc-section">D.C. Hub</a>
+                <a href="#comparison-section">Comparison</a>
+                <a class="nav-cta" href="#nyc-section">Explore Data</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ================================================================
+         HEADER / HERO
     ================================================================ -->
     <header class="site-header">
         <div class="header-inner">
@@ -157,6 +175,21 @@
                     <div class="svg-wrap">
                         <svg id="comparison-chart"></svg>
                         <div class="loading-msg" id="comparison-loading">Loading comparison chart&hellip;</div>
+                    </div>
+                    <!-- Stat cards populated by buildComparisonChart() in script.js -->
+                    <div class="city-stats">
+                        <div class="city-stat nyc">
+                            <div class="stat-value" id="stat-nyc-gap">—</div>
+                            <div class="stat-label">Equity Gap (NYC)</div>
+                        </div>
+                        <div class="city-stat dc">
+                            <div class="stat-value" id="stat-dc-gap">—</div>
+                            <div class="stat-label">Equity Gap (D.C.)</div>
+                        </div>
+                        <div class="city-stat agg">
+                            <div class="stat-value" id="stat-agg-gap">—</div>
+                            <div class="stat-label">Cross-City Average</div>
+                        </div>
                     </div>
                 </div>
             </div>

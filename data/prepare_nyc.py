@@ -46,7 +46,7 @@ import urllib.parse
 
 # Get a free key at https://api.census.gov/data/key_signup.html
 # Leave blank to use the demo key (rate-limited to ~500 req/day).
-CENSUS_API_KEY = os.environ.get("CENSUS_API_KEY", "")
+CENSUS_API_KEY = os.environ.get("CENSUS_API_KEY", "86b48be27d3c49126e2a5a2990498bdb71d2c836")
 
 # ACS 5-year vintage.  2019 is the last pre-COVID full year.
 ACS_YEAR = "2019"
@@ -62,10 +62,10 @@ OUT_FILE = os.path.join(os.path.dirname(__file__), "nyc_census_tracts.geojson")
 # DP05 variables we need  (same columns used for DC in script.js)
 # ---------------------------------------------------------------------------
 # DP05_0001E = Total population
-# DP05_0082E = White alone, not Hispanic or Latino
+# DP05_0077E = White alone, not Hispanic or Latino
 # DP05_0024E = 65 years and over
 # NAME / NAMELSAD come from the geometry file
-DP05_VARS = "NAME,DP05_0001E,DP05_0082E,DP05_0024E"
+DP05_VARS = "NAME,DP05_0001E,DP05_0077E,DP05_0024E"
 
 
 def fetch_json(url: str) -> object:
@@ -109,7 +109,7 @@ def fetch_demographics() -> dict:
             demog[geoid] = {
                 "NAME":        rec.get("NAME", ""),
                 "DP05_0001E":  _num(rec.get("DP05_0001E")),
-                "DP05_0082E":  _num(rec.get("DP05_0082E")),
+                "DP05_0077E":  _num(rec.get("DP05_0077E")),
                 "DP05_0024E":  _num(rec.get("DP05_0024E")),
             }
 
@@ -137,20 +137,16 @@ def fetch_boundaries() -> dict:
     The Census Bureau's TIGERweb feature service is used because it returns
     GeoJSON directly (no shapefile conversion needed).
     """
-    # TIGERweb ArcGIS REST query — tracts within NYC counties
-    county_list = ",".join(f"'36{c}'" for c in NYC_COUNTIES)
-    where_clause = urllib.parse.quote(f"COUNTY IN ({county_list}) AND STATE='36'")
-
     url = (
         "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/"
-        "Tracts_Blocks/MapServer/8/query"
-        f"?where=STATE%3D%2736%27+AND+COUNTY+IN+({urllib.parse.quote(','.join(NYC_COUNTIES))})"
-        "&outFields=GEOID,NAME,NAMELSAD,INTPTLAT,INTPTLON"
+        "Tracts_Blocks/MapServer/4/query"
+        "?where=STATE%3D%2736%27+AND+COUNTY+IN+(%27005%27,%27047%27,%27061%27,%27081%27,%27085%27)"
+        "&outFields=GEOID,NAME,INTPTLAT,INTPTLON"
         "&returnGeometry=true"
         "&outSR=4326"
-        "&f=geojson"
-        "&resultRecordCount=5000"
+        "&f=json"
     )
+
 
     print("\nFetching census tract boundaries from TIGERweb…")
     geo = fetch_json(url)
@@ -168,8 +164,17 @@ def join_and_write(boundaries: dict, demog: dict) -> None:
     out_features = []
 
     for feat in boundaries.get("features", []):
-        props = feat.get("properties", {})
+        props = feat.get("attributes", {})
         geoid = str(props.get("GEOID", ""))
+        
+        # Convert Esri Geometry to GeoJSON
+        esri_geom = feat.get("geometry", {})
+        geom = None
+        if "rings" in esri_geom:
+            geom = {
+                "type": "Polygon" if len(esri_geom["rings"]) == 1 else "MultiPolygon",
+                "coordinates": esri_geom["rings"] if len(esri_geom["rings"]) == 1 else [esri_geom["rings"]]
+            }
 
         # Look up this tract's DP05 data
         dp = demog.get(geoid, {})
@@ -186,12 +191,12 @@ def join_and_write(boundaries: dict, demog: dict) -> None:
             "INTPTLAT":    props.get("INTPTLAT", 0),
             "INTPTLON":    props.get("INTPTLON", 0),
             "DP05_0001E":  dp.get("DP05_0001E", 0),
-            "DP05_0082E":  dp.get("DP05_0082E", 0),
+            "DP05_0077E":  dp.get("DP05_0077E", 0),
             "DP05_0024E":  dp.get("DP05_0024E", 0),
         }
         out_features.append({
             "type":       "Feature",
-            "geometry":   feat.get("geometry"),
+            "geometry":   geom,
             "properties": out_props,
         })
 

@@ -1,0 +1,6 @@
+borough,total_pop,minority_pct,white_pct,senior_pct
+Bronx,1436785,0.904,0.096,0.113
+Brooklyn,2606852,0.642,0.358,0.122
+Manhattan,1634989,0.529,0.471,0.144
+Queens,2310011,0.744,0.256,0.137
+Staten Island,473324,0.374,0.626,0.145

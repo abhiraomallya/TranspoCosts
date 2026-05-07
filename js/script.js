@@ -52,10 +52,11 @@
             stationFile: "data/MTA_Subway_Stations_20260427.geojson",
             routesFile: "data/MTA_Subway_Lines.geojson",
             tractsFile: "data/nyc_census_tracts.geojson",   // optional
-            center: [-73.98, 40.67],
-            scale: 46000,
+            center: [-73.94, 40.70],
+            scale: 42000,
             label: "New York City",
             accentColor: "#4f9cf9",
+            metricSelectId: "nyc-metric",
         },
         dc: {
             mapId: "dc-map",
@@ -66,10 +67,11 @@
             acsFile: "data/ACS_5-Year_Demographic_Characteristics_of_DC_Census_Tracts.geojson",
             stationFile: "data/Metro_Stations_Regional.geojson",
             routesFile: "data/Metro_Lines_Regional.geojson",
-            center: [-77.01, 38.90],
-            scale: 90000,
+            center: [-77.01, 38.89],
+            scale: 75000,
             label: "Washington, D.C.",
             accentColor: "#f97316",
+            metricSelectId: "dc-metric",
         },
     };
 
@@ -101,12 +103,10 @@
     // =========================================================================
 
     // Vulnerability index weights (minority, poverty, senior)
-    const VW = { minority: 0.40, poverty: 0.35, senior: 0.25 };
+    const VW = { minority: 0.60, senior: 0.40 };
     function vulnIdx(d) {
-        const v = VW.minority * (+d.minority_pct || 0)
-            + VW.poverty * (+d.poverty_pct || 0)
-            + VW.senior * (+d.senior_pct || 0);
-        return v;
+        return VW.minority * (+d.minority_pct || 0)
+             + VW.senior  * (+d.senior_pct   || 0);
     }
 
     // Sequential yellow→orange→red choropleth scale.
@@ -363,7 +363,7 @@
 
         const svgEl = document.getElementById(cfg.mapId);
         const W = svgEl.parentElement.clientWidth - 2;
-        const H = svgEl.clientHeight || 440;
+        const H = svgEl.clientHeight || 500;
 
         const svg = d3.select(`#${cfg.mapId}`)
             .attr("viewBox", `0 0 ${W} ${H}`)
@@ -385,26 +385,37 @@
         const stations = geoFeatures.filter(f =>
             f.properties.type === "station" && f.geometry?.type === "Point");
 
-        // Inferno colormap offset so the minimum is a visible dark-maroon (not black),
-        // and the maximum is a bright yellow. Works well on dark panel backgrounds.
-        const vulnInterp = t => d3.interpolateInferno(0.15 + t * 0.85);
+        const vulnInterp = t => d3.interpolateBlues(0.15 + t * 0.85);
 
-        // Build a per-map colour scale whose domain spans the actual data range.
-        let vulnColor;
-        if (hoods.length > 0) {
+        function getMetricVal(demog, metric) {
+            if (!demog) return 0;
+            switch (metric) {
+                case "minority": return +demog.minority_pct || 0;
+                case "senior":   return +demog.senior_pct   || 0;
+                default:         return vulnIdx(demog);
+            }
+        }
+
+        function buildColorScale(metric) {
+            if (!hoods.length) return d3.scaleSequential(vulnInterp).domain([0, 1]);
             const vals = hoods
                 .filter(h => h.properties.demog)
-                .map(h => vulnIdx(h.properties.demog));
-            const [lo, hi] = d3.extent(vals);
-            vulnColor = d3.scaleSequential(vulnInterp)
-                .domain([lo ?? 0, (hi ?? 1) * 1.05]);
-        } else {
-            vulnColor = d3.scaleSequential(vulnInterp).domain([0, 1]);
+                .map(h => getMetricVal(h.properties.demog, metric));
+            const sorted = [...vals].sort((a, b) => a - b);
+            const lo = sorted[Math.floor(sorted.length * 0.05)];
+            const hi = sorted[Math.floor(sorted.length * 0.95)];
+            return d3.scaleSequential(vulnInterp).domain([lo ?? 0, hi ?? 1]);
         }
+
+        const selEl = cfg.metricSelectId ? document.getElementById(cfg.metricSelectId) : null;
+        let currentMetric = selEl ? selEl.value : "vuln";
+        let vulnColor = buildColorScale(currentMetric);
+
+        const mapG = svg.append("g").attr("class", "map-container");
 
         // Layer 1: choropleth (only if neighborhood polygons exist)
         if (hoods.length > 0) {
-            svg.append("g").attr("class", "neighborhoods")
+            mapG.append("g").attr("class", "neighborhoods")
                 .selectAll("path")
                 .data(hoods)
                 .join("path")
@@ -412,7 +423,7 @@
                 .attr("d", path)
                 .attr("fill", d =>
                     d.properties.demog
-                        ? vulnColor(vulnIdx(d.properties.demog))
+                        ? vulnColor(getMetricVal(d.properties.demog, currentMetric))
                         : "#1d2236")
                 .on("mousemove", (ev, d) => showTip(ev, hoodTip(d)))
                 .on("mouseleave", hideTip);
@@ -420,7 +431,7 @@
 
         // Layer 2: route lines (optional)
         if (routes.length > 0) {
-            svg.append("g").attr("class", "routes")
+            mapG.append("g").attr("class", "routes")
                 .selectAll("path")
                 .data(routes)
                 .join("path")
@@ -433,11 +444,11 @@
 
         // Layer 3: station dots — DC dots larger to show WMATA line colors clearly
         const stationR = cfg.mapId === "dc-map" ? 5 : (hoods.length > 0 ? 3.5 : 2.5);
-        svg.append("g").attr("class", "stations")
+        mapG.append("g").attr("class", "stations")
             .selectAll("circle")
             .data(stations)
             .join("circle")
-            .attr("class", "transit-station")
+            .attr("class", "station transit-station")
             .attr("cx", d => proj(d.geometry.coordinates)[0])
             .attr("cy", d => proj(d.geometry.coordinates)[1])
             .attr("r", stationR)
@@ -466,7 +477,7 @@
             "stroke-linejoin": "round",
             "pointer-events": "none",
         };
-        const labelsG = svg.append("g").attr("class", "geo-labels");
+        const labelsG = mapG.append("g").attr("class", "geo-labels");
 
         const GEO_LABELS = cfg.mapId === "nyc-map"
             ? [
@@ -490,12 +501,43 @@
         GEO_LABELS.forEach(lbl => {
             const [px, py] = proj([lbl.lng, lbl.lat]);
             if (px < 4 || px > W - 4 || py < 4 || py > H - 4) return;
-            const t = labelsG.append("text").attr("x", px).attr("y", py);
+            const t = labelsG.append("text").attr("class", "place-label").attr("x", px).attr("y", py);
             Object.entries(LABEL_STYLE).forEach(([k, v]) => t.style(k, v));
             t.text(lbl.name);
         });
 
-        buildMapLegend(cfg, hoods.length > 0);
+        buildMapLegend(cfg, hoods.length > 0, currentMetric);
+
+        if (selEl && hoods.length > 0) {
+            selEl.addEventListener("change", () => {
+                currentMetric = selEl.value;
+                vulnColor = buildColorScale(currentMetric);
+                svg.selectAll(".neighborhood")
+                    .attr("fill", d =>
+                        d.properties.demog
+                            ? vulnColor(getMetricVal(d.properties.demog, currentMetric))
+                            : "#1d2236");
+                buildMapLegend(cfg, true, currentMetric);
+            });
+        }
+
+        const zoom = d3.zoom()
+            .scaleExtent([1, 8])
+            .on("zoom", (event) => {
+                mapG.attr("transform", event.transform);
+                mapG.selectAll("circle.station")
+                    .attr("r", stationR / Math.sqrt(event.transform.k));
+                mapG.selectAll("text.place-label")
+                    .style("font-size", `${14 / event.transform.k}px`);
+            });
+
+        svg.call(zoom);
+
+        svg.on("dblclick.zoom", () => {
+            svg.transition().duration(500).call(zoom.transform, d3.zoomIdentity);
+        });
+
+        svgEl.__zoomBehavior = zoom;
 
         // Return station lat/lng so init() can call nearestKm() for each demog row.
         return stations.map(f => ({
@@ -514,12 +556,15 @@
                 <div class="tt-row"><span class="tt-label">Vuln. Index</span><span class="tt-val">${d3.format(".3f")(vulnIdx(dem))}</span></div>`;
     }
 
-    function buildMapLegend(cfg, hasHoods) {
+    function buildMapLegend(cfg, hasHoods, metric = "vuln") {
         const div = document.getElementById(cfg.legendId);
         if (!div) return;
         div.innerHTML = "";
 
         if (hasHoods) {
+            const metricLabels = {
+                vuln: "Vuln. Index", minority: "Minority %", senior: "Senior %",
+            };
             const ns = "http://www.w3.org/2000/svg";
             const sv = document.createElementNS(ns, "svg");
             sv.setAttribute("width", "110"); sv.setAttribute("height", "11");
@@ -530,7 +575,7 @@
             [0, .25, .5, .75, 1].forEach(t => {
                 const stop = document.createElementNS(ns, "stop");
                 stop.setAttribute("offset", `${t * 100}%`);
-                stop.setAttribute("stop-color", d3.interpolateInferno(0.15 + t * 0.85));
+                stop.setAttribute("stop-color", d3.interpolateBlues(0.15 + t * 0.85));
                 grad.appendChild(stop);
             });
             defs.appendChild(grad);
@@ -539,7 +584,7 @@
             rect.setAttribute("width", "110"); rect.setAttribute("height", "11");
             rect.setAttribute("fill", `url(#grad-${cfg.mapId})`);
             sv.appendChild(rect);
-            div.appendChild(Object.assign(document.createElement("span"), { textContent: "Low vuln. " }));
+            div.appendChild(Object.assign(document.createElement("span"), { textContent: `Low ${metricLabels[metric] || ""} ` }));
             div.appendChild(sv);
             div.appendChild(Object.assign(document.createElement("span"), { textContent: " High  " }));
         }
@@ -988,3 +1033,9 @@
     }
 
 })();
+
+function resetZoom(btn) {
+    const svgEl = btn.closest(".svg-wrap").querySelector("svg");
+    const svg = d3.select(svgEl);
+    svg.transition().duration(500).call(svgEl.__zoomBehavior.transform, d3.zoomIdentity);
+}

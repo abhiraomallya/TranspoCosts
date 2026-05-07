@@ -216,7 +216,7 @@ main {
     width: 120px;
     height: 11px;
     border-radius: 3px;
-    background: linear-gradient(to right, #280b53, #8f2363, #e65100, #fde725);
+    background: linear-gradient(to right, #cfe2f3, #6baed6, #2171b5, #08306b);
 }
 
 .legend-dot {
@@ -339,6 +339,26 @@ main {
     width: 100%;
 }
 
+.zoom-reset-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    padding: 3px 9px;
+    background: rgba(20, 20, 28, 0.82);
+    color: #e5e2e2;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 5px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    backdrop-filter: blur(4px);
+    transition: background 0.15s, border-color 0.15s;
+    z-index: 10;
+}
+.zoom-reset-btn:hover {
+    background: rgba(50, 50, 65, 0.92);
+    border-color: rgba(255, 255, 255, 0.38);
+}
+
 /* Map SVGs */
 #nyc-map, #dc-map {
     display: block;
@@ -364,8 +384,8 @@ main {
    CITY STATS ROW (comparison section — values populated by JS)
 ============================================================================= */
 .city-stats {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    display: flex;
+    flex-direction: row;
     gap: 1rem;
     margin-top: 1.4rem;
     padding-top: 1.2rem;

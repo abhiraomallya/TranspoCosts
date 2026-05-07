@@ -51,13 +51,19 @@
                 <h2>About This Project</h2>
                 <p>
                     Public transportation is not distributed equitably. This project compares demographic
-                    vulnerability&mdash;including racial minority populations, poverty rates, and senior citizen
-                    concentrations&mdash;against transit network reach in <strong>New York City</strong> and
+                    vulnerability against subway and metro networks in <strong>New York City</strong> and
                     <strong>Washington, D.C.</strong> The choropleth maps show where high-need communities live,
                     overlaid with the actual transit network. The bar charts measure the disparity in average
-                    distance to the nearest transit stop between minority-majority and non-minority neighborhoods.
+                    distance to the nearest subway and metro networks between minority-majority and non-minority neighborhoods.
                     Together, these visualizations reveal where future transit investment would have the greatest
                     equity impact.
+                </p>
+                <p>
+                    The <strong>Vulnerability Index</strong> is a composite score built from two components:
+                    <strong>Racial minority population share (60% weight)</strong> reflects historically underserved
+                    communities; and <strong>Senior citizen concentration (40% weight)</strong> accounts for
+                    populations with reduced mobility who depend most on public transit. These weights reflect
+                    deliberate prioritization &mdash; race is the strongest predictor of transit inequity in U.S. cities.
                 </p>
                 <div class="legend-bar global-legend">
                     <span class="legend-label">Vulnerability Index:</span>
@@ -67,11 +73,10 @@
                         <span class="grad-high">High</span>
                     </div>
                     <span class="legend-spacer"></span>
-                    <span class="legend-dot subway"></span><span>Subway / Metro</span>
-                    <span class="legend-dot bus"></span><span>Bus / Rail</span>
+                    <span class="legend-dot subway"></span><span>Metro / Rail</span>
                 </div>
                 <p class="index-note">
-                    Vulnerability Index = 0.40 &times; Minority % + 0.35 &times; Poverty % + 0.25 &times; Senior (65+) %
+                    Vulnerability Index = 0.60 &times; Minority % + 0.40 &times; Senior (65+) %
                 </p>
             </div>
         </section>
@@ -82,7 +87,7 @@
         <section class="city-section" id="nyc-section">
             <div class="section-header">
                 <h2>New York City</h2>
-                <p>MTA Subway &amp; Bus network overlaid with neighborhood-level demographic vulnerability (NTA boundaries)</p>
+                <p>MTA Subway network overlaid with neighborhood-level demographic vulnerability (NTA boundaries)</p>
             </div>
 
             <div class="viz-row">
@@ -90,11 +95,20 @@
                 <div class="panel map-panel" id="nyc-map-panel">
                     <div class="panel-header">
                         <h3>Transit Network &amp; Demographic Heatmap</h3>
+                        <div class="metric-selector">
+                            <label for="nyc-metric">Color map by:</label>
+                            <select id="nyc-metric">
+                                <option value="vuln">Vulnerability Index</option>
+                                <option value="minority">Minority %</option>
+                                <option value="senior">Senior %</option>
+                            </select>
+                        </div>
                         <div class="map-legend" id="nyc-map-legend"></div>
                     </div>
                     <div class="svg-wrap">
                         <svg id="nyc-map"></svg>
                         <div class="loading-msg" id="nyc-map-loading">Loading NYC map data&hellip;</div>
+                        <button class="zoom-reset-btn" onclick="resetZoom(this)">&#x21BA; Reset</button>
                     </div>
                 </div>
 
@@ -129,11 +143,20 @@
                 <div class="panel map-panel" id="dc-map-panel">
                     <div class="panel-header">
                         <h3>Transit Network &amp; Demographic Heatmap</h3>
+                        <div class="metric-selector">
+                            <label for="dc-metric">Color map by:</label>
+                            <select id="dc-metric">
+                                <option value="vuln">Vulnerability Index</option>
+                                <option value="minority">Minority %</option>
+                                <option value="senior">Senior %</option>
+                            </select>
+                        </div>
                         <div class="map-legend" id="dc-map-legend"></div>
                     </div>
                     <div class="svg-wrap">
                         <svg id="dc-map"></svg>
                         <div class="loading-msg" id="dc-map-loading">Loading DC map data&hellip;</div>
+                        <button class="zoom-reset-btn" onclick="resetZoom(this)">&#x21BA; Reset</button>
                     </div>
                 </div>
 
@@ -195,6 +218,57 @@
             </div>
         </section>
 
+        <!-- ================================================================
+             FINDINGS & LIMITATIONS
+        ================================================================ -->
+        <section class="intro-section">
+            <div class="intro-inner">
+                <h2>Key Findings</h2>
+                <p>
+                    Washington D.C. shows a significantly larger transit equity gap (+23%) than New York City (+5%).
+                    Minority-majority census tracts in D.C. are on average 0.20 km farther from a Metro station than
+                    non-minority tracts, compared to only a 0.05 km gap in NYC. This difference likely reflects D.C.'s
+                    more spatially segregated layout and the historically limited Metro coverage east of the Anacostia River.
+                </p>
+                <p>
+                    In NYC, the vulnerability index reveals the Bronx and parts of northern Brooklyn as the highest-need
+                    areas. Despite high vulnerability scores, these neighborhoods benefit from relatively dense subway
+                    coverage &mdash; which helps explain why the overall equity gap is smaller. The subway's grid-like
+                    density in the outer boroughs partially offsets the disparity.
+                </p>
+                <p>
+                    In D.C., Wards 7 and 8 in the eastern part of the city show the highest vulnerability scores and are
+                    the furthest from Metro stations. This reflects a well-documented pattern of underinvestment east of
+                    the Anacostia River, where majority-Black communities have historically had fewer transit options
+                    despite being among the city's most transit-dependent populations.
+                </p>
+                <p>
+                    The cross-city average equity gap of ~14% suggests that even in cities with robust transit systems,
+                    minority and lower-income communities face measurably worse access. This gap compounds other
+                    disadvantages &mdash; longer commutes, higher transportation costs, and reduced access to jobs and services.
+                </p>
+
+                <h2>Limitations &amp; Future Work</h2>
+                <p>
+                    The vulnerability index currently incorporates racial minority population share (60%) and senior
+                    citizen concentration (40%), but lacks poverty data &mdash; the DP05 ACS dataset does not include
+                    economic characteristics. Incorporating DP03 data in a future iteration would produce a more complete
+                    composite score, particularly for NYC where economic inequality varies significantly across boroughs.
+                </p>
+                <p>
+                    Distance to the nearest station is a simplified proxy for transit access. It does not account for
+                    service frequency, hours of operation, travel time to key destinations, or first/last mile
+                    connectivity. A neighborhood 0.8 km from a station that runs every 20 minutes may have worse effective
+                    access than one 1.2 km from a station with 2-minute headways.
+                </p>
+                <p>
+                    This analysis uses 2019 ACS data for NYC and 2018 data for D.C. Post-pandemic service cuts, ridership
+                    shifts, and new infrastructure such as the NYC Second Avenue Subway extension are not reflected in
+                    these results.
+                </p>
+            </div>
+        </section>
+
     </main>
 
     <!-- Global tooltip (positioned by JS) -->
@@ -202,10 +276,10 @@
 
     <footer>
         <p>
-            Data sources: MTA Open Data (Bus Routes, Subway Stations) &bull; DC OpenData (Metro Stations) &bull;
+            Data sources: MTA Open Data (Subway Stations) &bull; DC OpenData (Metro Stations) &bull;
             NYC OpenData (NTA Demographics) &bull; U.S. Census ACS 5-Year Estimates (DC Census Tracts)
         </p>
-        <p>CMSC 471 Final Project &bull; University of Maryland &bull; 2025</p>
+        <p>CMSC 471 Final Project &bull; University of Maryland &bull; 2026</p>
     </footer>
 
     <!-- D3 v7 from CDN -->

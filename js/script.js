@@ -512,11 +512,15 @@
             selEl.addEventListener("change", () => {
                 currentMetric = selEl.value;
                 vulnColor = buildColorScale(currentMetric);
+                
                 svg.selectAll(".neighborhood")
+                    .transition()          
+                    .duration(600)         
                     .attr("fill", d =>
                         d.properties.demog
                             ? vulnColor(getMetricVal(d.properties.demog, currentMetric))
                             : "#1d2236");
+                            
                 buildMapLegend(cfg, true, currentMetric);
             });
         }
@@ -1031,6 +1035,70 @@
     } else {
         init();
     }
+    // =========================================================================
+    // 12. DASHBOARD MODE & UI SYNC
+    // =========================================================================
+
+    // A. Toggle Dashboard Layout
+    // A. Toggle Dashboard Layout
+    // A. Toggle Dashboard Layout
+    // A. Toggle Dashboard Layout
+    const toggleBtn = document.getElementById("dashboard-toggle");
+    if (toggleBtn) {
+        toggleBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            document.body.classList.add("layout-transition");
+
+            setTimeout(() => {
+                
+
+                document.documentElement.classList.add("instant-scroll");
+                window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+                
+                document.body.classList.toggle("dashboard-mode");
+                
+                if (document.body.classList.contains("dashboard-mode")) {
+                    toggleBtn.textContent = "Exit Dashboard";
+                } else {
+                    toggleBtn.textContent = "Dashboard Mode";
+                }
+                
+                window.dispatchEvent(new Event("resize"));
+
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        document.body.classList.remove("layout-transition");
+                        
+                        setTimeout(() => {
+                            document.documentElement.classList.remove("instant-scroll");
+                        }, 50); 
+                    });
+                });
+                
+            }, 250); 
+        });
+    }
+
+    // B. Synchronize the Map Dropdowns
+    const nycSelect = document.getElementById("nyc-metric");
+    const dcSelect = document.getElementById("dc-metric");
+
+    if (nycSelect && dcSelect) {
+        nycSelect.addEventListener("change", (e) => {
+            if (dcSelect.value !== e.target.value) {
+                dcSelect.value = e.target.value;
+                dcSelect.dispatchEvent(new Event("change")); 
+            }
+        });
+
+        dcSelect.addEventListener("change", (e) => {
+            if (nycSelect.value !== e.target.value) {
+                nycSelect.value = e.target.value;
+                nycSelect.dispatchEvent(new Event("change"));
+            }
+        });
+    }
+    
 
 })();
 
@@ -1039,3 +1107,5 @@ function resetZoom(btn) {
     const svg = d3.select(svgEl);
     svg.transition().duration(500).call(svgEl.__zoomBehavior.transform, d3.zoomIdentity);
 }
+
+

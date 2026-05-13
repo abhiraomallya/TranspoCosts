@@ -30,6 +30,9 @@
 }
 
 html { scroll-behavior: smooth; }
+html.instant-scroll {
+    scroll-behavior: auto !important;
+}
 
 body {
     background: var(--bg);
@@ -158,6 +161,12 @@ main {
     max-width: 1340px;
     margin: 0 auto;
     padding: 2rem 1.5rem;
+    transition: opacity 0.25s ease-out, transform 0.25s ease-out;
+}
+
+body.layout-transition main {
+    opacity: 0;
+    transform: scale(0.98); 
 }
 
 
@@ -673,4 +682,39 @@ footer {
     .intro-section { padding: 1.2rem; }
     #nyc-map, #dc-map { height: 280px; }
     .site-header { padding: 3rem 1rem 2rem; }
+}
+
+/* =============================================================================
+   DASHBOARD MODE (Side-by-Side Comparison)
+============================================================================= */
+body.dashboard-mode .intro-section,
+body.dashboard-mode #comparison-section,
+body.dashboard-mode footer {
+    display: none; /* Hide text and comparison to focus on maps */
+}
+
+body.dashboard-mode main {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    max-width: 100%; /* Use full screen width */
+    padding: 1rem 2rem;
+}
+
+body.dashboard-mode .city-section {
+    margin-bottom: 0;
+}
+
+/* Force maps and charts to stack vertically in dashboard mode since horizontal space is halved */
+body.dashboard-mode .viz-row,
+body.dashboard-mode #dc-section .viz-row {
+    grid-template-columns: 1fr;
+}
+
+/* Slightly reduce heights so both the map and chart fit nicely on standard laptop screens */
+body.dashboard-mode #nyc-map, 
+body.dashboard-mode #dc-map,
+body.dashboard-mode #nyc-chart, 
+body.dashboard-mode #dc-chart {
+    height: 380px; 
 }
